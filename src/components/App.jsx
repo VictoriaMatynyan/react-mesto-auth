@@ -9,6 +9,7 @@ import AddPlacePopup from './AddPlacePopup.jsx';
 import PopupWithConfirmation from './PopupWithConfirmation.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
+import InfoTooltip from './InfoTooltip.jsx';
 
 // импорт API
 import api from '../utils/Api.js';
@@ -16,7 +17,7 @@ import * as auth from '../utils/auth.js';
 
 // импорт объекта контекста для изменения данных пользователя
 import CurrentUserContext from '../contexts/CurrentUserContext.jsx';
-import { Routes, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 function App() {
 
@@ -43,6 +44,7 @@ function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isConfirmationPopupOpen, setConfirmationPopupOpen] = useState(false);
+  const [isInfoTooltipOpen, setInfoTooltipOpen] = useState(false);
 
   // создаём стейт-переменную для открытия popupWithImage
   const [selectedCard, setSelectedCard] = useState(null);
@@ -186,6 +188,7 @@ function App() {
     setAddPlacePopupOpen(false);
     setConfirmationPopupOpen(false);
     setSelectedCard(null);
+    setInfoTooltipOpen(false);
   }
 
   // закрываем попапы по Esc
@@ -252,6 +255,7 @@ function App() {
       onAddPlace={handleAddPlaceSubmit}
       textOnButton={isLoading ? "Сохранение..." : "Создать"}
     />
+    <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} />
   </CurrentUserContext.Provider> 
 </>
   );
