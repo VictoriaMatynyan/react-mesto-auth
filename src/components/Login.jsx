@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import * as auth from "../utils/auth.js";
 
 const Login = ({ handleLogin }) => {
     const [formValue, setFormValue] = useState({
