@@ -1,11 +1,11 @@
 import React from "react";
 import PopupWithForm from "./PopupWithForm.jsx";
 
-const PopupWithConfirmation = ({ isOpen, onClose, onSubmit, textOnButton }) => {
+const PopupWithConfirmation = ({ isOpen, onClose, onSubmit, textOnButton, cardItem }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(card);
+        onSubmit(cardItem);
     }
 
     return (

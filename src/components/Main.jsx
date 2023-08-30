@@ -11,6 +11,7 @@ const Main = ({
     onCardClick, 
     onCardLike, 
     onCardDelete,
+    cardToBeDeleted,
     cards 
 }) => {
 
@@ -56,6 +57,7 @@ const Main = ({
                 onCardClick={onCardClick} 
                 onCardLike={onCardLike} 
                 onCardDelete={onCardDelete}
+                cardToBeDeleted={cardToBeDeleted}
                 />
             ))}
         </section>

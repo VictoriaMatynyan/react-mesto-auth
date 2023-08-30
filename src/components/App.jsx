@@ -6,7 +6,7 @@ import PopupWithImage from './PopupWithImage.jsx';
 import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddPlacePopup from './AddPlacePopup.jsx';
-// import PopupWithConfirmation from './PopupWithConfirmation.jsx';
+import PopupWithConfirmation from './PopupWithConfirmation.jsx';
 
 import api from '../utils/Api.js';
 
@@ -37,10 +37,13 @@ function App() {
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
-  // const [isConfirmationPopupOpen, setConfirmationPopupOpen] = useState(false);
+  const [isConfirmationPopupOpen, setConfirmationPopupOpen] = useState(false);
 
   // создаём стейт-переменную для открытия popupWithImage
   const [selectedCard, setSelectedCard] = useState(null);
+
+  //создаём стейт-переменную для удаления карточки
+  const [cardToBeDeleted, setCardToBeDeleted] = useState(null);
 
   // создаём стейт для индикаторов загрузки запросов
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +63,10 @@ function App() {
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
+  }
+
+  const handleDeleteCardClick = () => {
+    setConfirmationPopupOpen(true);
   }
 
   const handleCardLike = (card) => {
@@ -138,6 +145,7 @@ function App() {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setAddPlacePopupOpen(false);
+    setConfirmationPopupOpen(false);
     setSelectedCard(null);
   }
 
@@ -166,17 +174,18 @@ function App() {
     onAddPlace={handleAddPlaceClick}
     onCardClick={handleCardClick}
     onCardLike={handleCardLike}
-    // onConfirmDeletion={handleConfirmDeletion}
-    onCardDelete={handleCardDelete}
+    onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
+    cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
     cards={cards}
   />
   <Footer />
-  {/* <PopupWithConfirmation
+  <PopupWithConfirmation
     isOpen={isConfirmationPopupOpen}
     textOnButton={isLoading ? "Сохранение..." : "Да"}
     onClose={closeAllPopups}
     onSubmit={handleCardDelete}
-  /> */}
+    cardItem={cardToBeDeleted}
+  />
   <PopupWithImage
     isOpen={selectedCard}
     card={selectedCard}
@@ -206,8 +215,3 @@ function App() {
 }
 
 export default App;
-
-// const handleConfirmDeletion = (card) => {
-  //   setCardData(card);
-  //   setConfirmationPopupOpen(true);
-  // }
