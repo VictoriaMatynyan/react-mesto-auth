@@ -31,12 +31,15 @@ export const login = (email, password) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            email,
-            password,
-        }),
+        body: JSON.stringify({ email, password }),
     })
-    .then(validateResponse)
+    .then(res => res.json())
+    .then((data) => {
+        if(data.jwt) {
+            localStorage.setItem('jwt', data.jwt);
+            return data;
+        }
+    })
     .catch((err) => {
         console.log(`Ошибка авторизации: ${err}`);
     })

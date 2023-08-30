@@ -1,0 +1,21 @@
+.authentication-form__input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid rgba(204, 204, 204, 1);
+    margin: 0;
+    padding: 30px 0 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.94px;
+    outline: none;
+    vertical-align: text-top;
+    background-color: black;
+}
+
+.authentication-form__input:first-of-type {
+    padding-top: 50px;
+}
+
+.authentication-form__input::placeholder {
+    color: rgba(204, 204, 204, 1);
+}

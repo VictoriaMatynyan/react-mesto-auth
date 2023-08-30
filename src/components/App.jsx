@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom'; // хук для выхода из системы и переадресовки пользователя
 import Header from './Header.jsx';
 import Main from './Main.jsx';
 import Footer from './Footer.jsx';
@@ -7,11 +8,15 @@ import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddPlacePopup from './AddPlacePopup.jsx';
 import PopupWithConfirmation from './PopupWithConfirmation.jsx';
+import Login from './Login.jsx';
 
+// импорт API
 import api from '../utils/Api.js';
+import * as auth from '../utils/auth.js';
 
 // импорт объекта контекста для изменения данных пользователя
 import CurrentUserContext from '../contexts/CurrentUserContext.jsx';
+import { Routes } from 'react-router-dom';
 
 function App() {
 
@@ -47,6 +52,26 @@ function App() {
 
   // создаём стейт для индикаторов загрузки запросов
   const [isLoading, setIsLoading] = useState(false);
+
+  //создаём стейт для проверки пользователя на авторизацию
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // записываем хук в переменную для получения доступа к его свойствам
+  const history = useHistory();
+
+  const handleLogin = (formValue) => {
+    auth.login(formValue)
+    .then((data) => {
+      if (data.jwt) {
+        localStorage.setItem('jwt', data.jwt);
+        setLoggedIn(true);
+        history.push('/'); // если успех - переадресовываем пользователя на главную страницу
+      }
+    })
+    .catch((err) => {
+      console.log(`Ошибка авторизации: ${err}`);
+    })
+  }
 
   // создаём обработчики для открытия попапов
   const handleEditAvatarClick = () => {
@@ -167,48 +192,51 @@ function App() {
   return (
     <>
   <CurrentUserContext.Provider value={currentUser}>
-  <Header />
-  <Main
-    onEditAvatar={handleEditAvatarClick}
-    onEditProfile={handleEditProfileClick}
-    onAddPlace={handleAddPlaceClick}
-    onCardClick={handleCardClick}
-    onCardLike={handleCardLike}
-    onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
-    cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
-    cards={cards}
-  />
-  <Footer />
-  <PopupWithConfirmation
-    isOpen={isConfirmationPopupOpen}
-    textOnButton={isLoading ? "Сохранение..." : "Да"}
-    onClose={closeAllPopups}
-    onSubmit={handleCardDelete}
-    cardItem={cardToBeDeleted}
-  />
-  <PopupWithImage
-    isOpen={selectedCard}
-    card={selectedCard}
-    onClose={closeAllPopups}
-  />
-  <EditProfilePopup
-    isOpen={isEditProfilePopupOpen} 
-    onClose={closeAllPopups}
-    onUpdateUser={handleUpdateUser}
-    textOnButton={isLoading ? "Сохранение..." : "Сохранить"}
-  />
-  <EditAvatarPopup 
-    isOpen={isEditAvatarPopupOpen} 
-    onClose={closeAllPopups}
-    onUpdateAvatar={handleUpdateAvatar}
-    textOnButton={isLoading ? "Сохранение..." : "Сохранить"}
-  />
-  <AddPlacePopup
-    isOpen={isAddPlacePopupOpen}
-    onClose={closeAllPopups}
-    onAddPlace={handleAddPlaceSubmit}
-    textOnButton={isLoading ? "Сохранение..." : "Создать"}
-  />
+    <Header />
+    <Main
+      onEditAvatar={handleEditAvatarClick}
+      onEditProfile={handleEditProfileClick}
+      onAddPlace={handleAddPlaceClick}
+      onCardClick={handleCardClick}
+      onCardLike={handleCardLike}
+      onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
+      cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
+      cards={cards}
+    />
+    <Routes>
+      <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+    </Routes>
+    <Footer />
+    <PopupWithConfirmation
+      isOpen={isConfirmationPopupOpen}
+      textOnButton={isLoading ? "Сохранение..." : "Да"}
+      onClose={closeAllPopups}
+      onSubmit={handleCardDelete}
+      cardItem={cardToBeDeleted}
+    />
+    <PopupWithImage
+      isOpen={selectedCard}
+      card={selectedCard}
+      onClose={closeAllPopups}
+    />
+    <EditProfilePopup
+      isOpen={isEditProfilePopupOpen} 
+      onClose={closeAllPopups}
+      onUpdateUser={handleUpdateUser}
+      textOnButton={isLoading ? "Сохранение..." : "Сохранить"}
+    />
+    <EditAvatarPopup 
+      isOpen={isEditAvatarPopupOpen} 
+      onClose={closeAllPopups}
+      onUpdateAvatar={handleUpdateAvatar}
+      textOnButton={isLoading ? "Сохранение..." : "Сохранить"}
+    />
+    <AddPlacePopup
+      isOpen={isAddPlacePopupOpen}
+      onClose={closeAllPopups}
+      onAddPlace={handleAddPlaceSubmit}
+      textOnButton={isLoading ? "Сохранение..." : "Создать"}
+    />
   </CurrentUserContext.Provider> 
 </>
   );

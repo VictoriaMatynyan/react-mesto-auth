@@ -49,6 +49,11 @@
 @import url(./blocks/element/__like-button/_active/element__like-button_active.css);
 @import url(./blocks/element/__likes-counter/element__likes-counter.css);
 
+@import url(./blocks/authentication-form/authentication-form.css);
+@import url(./blocks/authentication-form/__title/authentication-form__title.css);
+@import url(./blocks/authentication-form/__input/authentication-form__input.css);
+@import url(./blocks/authentication-form/__button/authentication-form__button.css);
+
 @import url(./blocks/footer/footer.css);
 @import url(./blocks/footer/__copyright/footer__copyright.css);
 

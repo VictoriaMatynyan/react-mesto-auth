@@ -17,7 +17,9 @@ const PopupWithForm = ({ isOpen, name, onClose, title, children, onSubmit, textO
             onSubmit={onSubmit}
             >
                 {children}
-                <button type="submit" className={`popup__submit-button ${disabled && "popup__submit-button_inactive"}`} >
+                <button
+                type="submit"
+                className={`popup__submit-button ${disabled && "popup__submit-button_inactive"}`} >
                     {textOnButton}
                 </button>
             </form>
