@@ -7,6 +7,7 @@ import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddPlacePopup from './AddPlacePopup.jsx';
 import PopupWithConfirmation from './PopupWithConfirmation.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
 import InfoTooltip from './InfoTooltip.jsx';
@@ -27,17 +28,21 @@ function App() {
   // создаём пустой массив для карточек, которые придут с сервера
   const [cards, setCards] = useState([]);
 
+  //создаём стейт для проверки пользователя на авторизацию
+  const [loggedIn, setLoggedIn] = useState(false);
+
+
   // объединяем запросы и получение данных пользователя и карточек в 1 хук
   useEffect(() => {
-    Promise.all ([api.getUserInfo(), api.getInitialCards()])
+    if (loggedIn) {
+      Promise.all ([api.getUserInfo(), api.getInitialCards()])
     .then(([userData, cardsData]) => {
       setCurrentUser(userData);
       setCards(cardsData);
     })
-    .catch((err) => {
-      console.log(`Ошибка при загрузки данных с сервера: ${err}`);
-    })
-  }, [])
+    .catch(err => console.log(`Ошибка при загрузки данных с сервера: ${err}`));
+    }
+  }, [loggedIn]);
 
   // создаём переменные, отвечающие за видимость попапов
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
@@ -49,15 +54,16 @@ function App() {
   // создаём стейт-переменную для открытия popupWithImage
   const [selectedCard, setSelectedCard] = useState(null);
 
-  //создаём стейт-переменную для удаления карточки
+  // создаём стейт-переменную для удаления карточки
   const [cardToBeDeleted, setCardToBeDeleted] = useState(null);
+
+  // стейт для отображения e-mail пользователя
+  const [userEmail, setUserEmail] = useState('');
 
   // создаём стейт для индикаторов загрузки запросов
   const [isLoading, setIsLoading] = useState(false);
 
-  //создаём стейт для проверки пользователя на авторизацию
-  const [loggedIn, setLoggedIn] = useState(false);
-
+  
   // записываем хук в переменную для получения доступа к его свойствам
   const navigate = useNavigate();
 
@@ -87,6 +93,32 @@ function App() {
     .catch((err) => {
       console.log(`Ошибка регистрации: ${err}`);
     })
+  }
+
+  const handleSignOut = () => {
+    localStorage.removeItem('jwt'); // удаляем токен при выходе из аккаунта
+    setLoggedIn(false);
+    setUserEmail(''); // очищаем e-mail
+    navigate('/sign-in', {replace: true});
+  }
+
+  // проверяем есть ли в локальном хранилище jwt
+  useEffect(() => {
+    handleTokenCheck
+  }, [])
+
+  const handleTokenCheck = () => {
+    if (localStorage.getItem('jwt')) {
+      const jwt = localStorage.getItem('jwt');
+      auth.checkToken(jwt)
+      .then((res) => {
+        if(res) {
+          setLoggedIn(true);
+          navigate('/', {replace: true});
+          setUserEmail(res.data.email);
+        }
+      })
+    }
   }
 
   // создаём обработчики для открытия попапов
@@ -142,7 +174,7 @@ function App() {
   }
 
   const handleUpdateUser = ({name, about}) => {
-    setIsLoading(true); //внутри блока then не работает. Вероятно, проблема в асинхронности
+    setIsLoading(true);
     api.editUserInfo({name, about})
     .then((data) => {
       setCurrentUser(data)
@@ -209,8 +241,8 @@ function App() {
   return (
     <>
   <CurrentUserContext.Provider value={currentUser}>
-    <Header />
-    <Main
+    <Header userEmail={userEmail} handleSignOut={handleSignOut} />
+    {/* <Main
       onEditAvatar={handleEditAvatarClick}
       onEditProfile={handleEditProfileClick}
       onAddPlace={handleAddPlaceClick}
@@ -219,8 +251,20 @@ function App() {
       onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
       cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
       cards={cards}
-    />
+    /> */}
     <Routes>
+
+      <Route path='/' element={<ProtectedRoute 
+      element={Main}
+      loggedIn={loggedIn}
+      onEditAvatar={handleEditAvatarClick}
+      onEditProfile={handleEditProfileClick}
+      onAddPlace={handleAddPlaceClick}
+      onCardClick={handleCardClick}
+      onCardLike={handleCardLike}
+      onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
+      cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
+      cards={cards} />} />
       <Route path="/sign-up" element={<Register handleRegistration={handleRegistration} />} />
       <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
     </Routes>
@@ -262,3 +306,5 @@ function App() {
 }
 
 export default App;
+
+// Routes - аналог компонента Switch

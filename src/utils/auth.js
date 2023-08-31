@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://auth.nomoreparties.co.';
+export const BASE_URL = 'https://auth.nomoreparties.co';
 
 // проверяем корректность запроса на сервер
 export function validateResponse(res) {
@@ -14,10 +14,7 @@ export const register = (email, password) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            email,
-            password,
-        }),
+        body: JSON.stringify({ email, password }),
     })
     .then(validateResponse)
     .catch((err) => {

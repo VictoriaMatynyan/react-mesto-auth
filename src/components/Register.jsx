@@ -50,7 +50,7 @@ const Register = ({ handleRegistration }) => {
                     Зарегистрироваться
             </button>
             <p className="authentication-form__text">Уже зарегистрированы?
-            <Link to="/sign-in" className="authentication-form__link"> Войти</Link>
+            <Link to="sign-in" className="authentication-form__link"> Войти</Link>
             </p>
         </form>
     )
