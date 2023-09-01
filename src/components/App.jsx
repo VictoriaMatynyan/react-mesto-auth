@@ -50,6 +50,7 @@ function App() {
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isConfirmationPopupOpen, setConfirmationPopupOpen] = useState(false);
   const [isInfoTooltipOpen, setInfoTooltipOpen] = useState(false);
+  const [isOk, setIsOk] = useState(false);
 
   // создаём стейт-переменную для открытия popupWithImage
   const [selectedCard, setSelectedCard] = useState(null);
@@ -67,32 +68,42 @@ function App() {
   // записываем хук в переменную для получения доступа к его свойствам
   const navigate = useNavigate();
 
-  const handleLogin = (formValue) => {
-    auth.login(formValue)
+  const handleLogin = (email, password) => {
+    auth.login(email, password)
     .then((data) => {
       if (data.jwt) {
         localStorage.setItem('jwt', data.jwt);
         setLoggedIn(true);
+        setInfoTooltipOpen(true);
         navigate('/', {replace: true}); // если успех - переадресовываем пользователя на главную страницу
       }
     })
     .catch((err) => {
       console.log(`Ошибка авторизации: ${err}`);
+      setInfoTooltipOpen(false);
     })
   }
 
-  const handleRegistration = (formValue) => {
-    auth.register(formValue)
-    .then((data) => {
-      if (data.jwt) {
-        localStorage.setItem('jwt', data.jwt);
-        setLoggedIn(true);
-        navigate('/', {replace: true}); // если успех - переадресовываем пользователя на главную страницу
+  const handleRegistration = (email, password) => {
+    auth.register(email, password)
+    .then((res) => {
+      if (res) {
+        console.log(res);
+        // localStorage.setItem('jwt', res.jwt);
+        setIsOk(true);
+        setInfoTooltipOpen(true);
+        navigate('/'); // если успех - переадресовываем пользователя на главную страницу
       }
+      return {}
     })
     .catch((err) => {
       console.log(`Ошибка регистрации: ${err}`);
+      setIsOk(false);
+      setInfoTooltipOpen(true);
     })
+    // .finally(() => {
+    //   setInfoTooltipOpen(true);
+    // })
   }
 
   const handleSignOut = () => {
@@ -253,7 +264,6 @@ function App() {
       cards={cards}
     /> */}
     <Routes>
-
       <Route path='/' element={<ProtectedRoute 
       element={Main}
       loggedIn={loggedIn}
@@ -265,7 +275,7 @@ function App() {
       onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
       cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
       cards={cards} />} />
-      <Route path="/sign-up" element={<Register handleRegistration={handleRegistration} />} />
+      <Route path="/sign-up" element={<Register onRegistration={handleRegistration} />} />
       <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
     </Routes>
     <Footer />
@@ -299,7 +309,7 @@ function App() {
       onAddPlace={handleAddPlaceSubmit}
       textOnButton={isLoading ? "Сохранение..." : "Создать"}
     />
-    <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} />
+    <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} isOk={isOk} />
   </CurrentUserContext.Provider> 
 </>
   );

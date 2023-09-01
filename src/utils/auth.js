@@ -12,40 +12,42 @@ export const register = (email, password) => {
     return fetch(`${BASE_URL}/signup`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Sets output type to JSON
+            'Content-Type': 'application/json',  // Indicates that the request body format is JSON
         },
         body: JSON.stringify({ email, password }),
     })
     .then(validateResponse)
-    .catch((err) => {
-        console.log(`Ошибка регистрации: ${err}`);
-    })
 }
 
 export const login = (email, password) => {
     return fetch(`${BASE_URL}/signin`, {
         method: 'POST',
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
     })
-    .then(res => res.json())
-    .then((data) => {
-        if(data.jwt) {
-            localStorage.setItem('jwt', data.jwt);
-            return data;
-        }
-    })
-    .catch((err) => {
-        console.log(`Ошибка авторизации: ${err}`);
-    })
+    .then(validateResponse)
+    // .then(res => res.json())
+    // .then((data) => {
+    //     if(data.jwt) {
+    //         localStorage.setItem('jwt', data.jwt);
+    //         return data;
+    //     }
+    //     return {};
+    // })
+    // .catch((err) => {
+    //     console.log(`Ошибка авторизации: ${err}`);
+    // })
 }
 
 export const checkToken = (token) => {
     return fetch(`${BASE_URL}/users/me`, {
         method: 'GET',
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },

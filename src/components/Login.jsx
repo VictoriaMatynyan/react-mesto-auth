@@ -1,23 +1,35 @@
 import React, { useState } from "react";
 
 const Login = ({ handleLogin }) => {
-    const [formValue, setFormValue] = useState({
-        email: "",
-        password: "",
-    })
+    const [userEmail, setUserEmail] = useState('');
+    const [userPassword, setUserPassword] = useState('');
 
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormValue({
-            // деструктуризацией сохраняем все свойства formValue и добавляем новое свойство name со знчением value
-            ...formValue,
-            [name]: value
-        })     
+    const handleChangeEmail = (e) => {
+        setUserEmail(e.target.value);
     }
+
+    const handleChangePassword = (e) => {
+        setUserPassword(e.target.value);
+    }
+    
+
+    // const [formValue, setFormValue] = useState({
+    //     email: "",
+    //     password: "",
+    // })
+
+    // const handleChange = (e) => {
+    //     const {name, value} = e.target;
+    //     setFormValue({
+    //         // деструктуризацией сохраняем все свойства formValue и добавляем новое свойство name со знчением value
+    //         ...formValue,
+    //         [name]: value
+    //     })     
+    // }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        handleLogin(formValue); // передаём актуальные значения полей формы
+        handleLogin(userEmail, userPassword); // передаём актуальные значения полей формы
     }
     
     return (
@@ -32,16 +44,17 @@ const Login = ({ handleLogin }) => {
                 type="email"
                 name="email"
                 placeholder="Email"
-                value={formValue.email}
-                onChange={handleChange}
+                autoComplete="off"
+                value={userEmail}
+                onChange={handleChangeEmail}
             />
             <input
             className="authentication-form__input"
                 type="password"
                 name="password"
                 placeholder="Пароль"
-                value={formValue.password}
-                onChange={handleChange}
+                value={userPassword}
+                onChange={handleChangePassword}
             />
             <button
                 className="authentication-form__button"
