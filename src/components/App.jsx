@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Header from './Header.jsx';
 import Main from './Main.jsx';
 import Footer from './Footer.jsx';
@@ -7,7 +8,7 @@ import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddPlacePopup from './AddPlacePopup.jsx';
 import PopupWithConfirmation from './PopupWithConfirmation.jsx';
-import ProtectedRoute from './ProtectedRoute.jsx';
+import ProtectedRouteElement from './ProtectedRoute.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
 import InfoTooltip from './InfoTooltip.jsx';
@@ -18,7 +19,6 @@ import * as auth from '../utils/auth.js';
 
 // импорт объекта контекста для изменения данных пользователя
 import CurrentUserContext from '../contexts/CurrentUserContext.jsx';
-import { Routes, Route, useNavigate } from 'react-router-dom';
 
 function App() {
 
@@ -28,29 +28,13 @@ function App() {
   // создаём пустой массив для карточек, которые придут с сервера
   const [cards, setCards] = useState([]);
 
-  //создаём стейт для проверки пользователя на авторизацию
-  const [loggedIn, setLoggedIn] = useState(false);
-
-
-  // объединяем запросы и получение данных пользователя и карточек в 1 хук
-  useEffect(() => {
-    if (loggedIn) {
-      Promise.all ([api.getUserInfo(), api.getInitialCards()])
-    .then(([userData, cardsData]) => {
-      setCurrentUser(userData);
-      setCards(cardsData);
-    })
-    .catch(err => console.log(`Ошибка при загрузки данных с сервера: ${err}`));
-    }
-  }, [loggedIn]);
-
   // создаём переменные, отвечающие за видимость попапов
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isConfirmationPopupOpen, setConfirmationPopupOpen] = useState(false);
   const [isInfoTooltipOpen, setInfoTooltipOpen] = useState(false);
-  const [isOk, setIsOk] = useState(false);
+  const [isSucceeded, setIsSucceeded] = useState(false);
 
   // создаём стейт-переменную для открытия popupWithImage
   const [selectedCard, setSelectedCard] = useState(null);
@@ -64,95 +48,108 @@ function App() {
   // создаём стейт для индикаторов загрузки запросов
   const [isLoading, setIsLoading] = useState(false);
 
-  
   // записываем хук в переменную для получения доступа к его свойствам
   const navigate = useNavigate();
 
+  //создаём стейт для проверки пользователя на авторизацию
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // объединяем запросы и получение данных пользователя и карточек в 1 хук
+  useEffect(() => {
+    if (loggedIn) {
+      Promise.all ([api.getUserInfo(), api.getInitialCards()])
+      .then(([userData, cardsData]) => {
+        setCurrentUser(userData);
+        setCards(cardsData);
+      })
+      .catch(err => console.log(`Ошибка при загрузки данных с сервера: ${err}`));
+      }
+  }, [loggedIn]);
+
+  useEffect(() => {
+    if(loggedIn) {
+      navigate('/');
+    }
+  }, [loggedIn]);
+
+  // создаём проверку на jwt в локальном хранилище
+  const handleTokenCheck = (jwt) => {
+    auth.checkToken(jwt)
+    .then((res) => {
+      if(res) {
+        console.log(res);
+        setLoggedIn(true);
+        setUserEmail({userEmail: res.email});
+        navigate('/', {replace: true});
+      }
+    })
+  }
+
+  useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      handleTokenCheck(jwt);
+    }
+  }, [])
+
+  const handleRegistration = (email, password) => {
+    auth.register(email, password)
+    .then((res) => {
+      if (!res || res.statusCode === 400) {  
+        setIsSucceeded(false);
+        setInfoTooltipOpen(true);
+      } else { // здесь мы не проверяем на jwt - его в параметрах запроса нет
+        setInfoTooltipOpen(true);
+        setIsSucceeded(true); // если успех - открываем радостный попап
+        navigate('/', {replace: true}); // и переадресовываем пользователя на главную страницу
+      }
+    })
+    .catch((err) => {
+      console.log(`Ошибка регистрации: ${err}`);
+    })
+  }
+
   const handleLogin = (email, password) => {
     auth.login(email, password)
-    .then((data) => {
-      if (data.jwt) {
-        localStorage.setItem('jwt', data.jwt);
+    .then((res) => {
+      if (res) { // здесь res.jwt 
+        console.log(res);
+        localStorage.setItem('jwt', res.jwt);
         setLoggedIn(true);
-        setInfoTooltipOpen(true);
+        setUserEmail(email);
         navigate('/', {replace: true}); // если успех - переадресовываем пользователя на главную страницу
       }
     })
     .catch((err) => {
       console.log(`Ошибка авторизации: ${err}`);
-      setInfoTooltipOpen(false);
+      setIsSucceeded(false);
     })
-  }
-
-  const handleRegistration = (email, password) => {
-    auth.register(email, password)
-    .then((res) => {
-      if (res) {
-        console.log(res);
-        // localStorage.setItem('jwt', res.jwt);
-        setIsOk(true);
-        setInfoTooltipOpen(true);
-        navigate('/'); // если успех - переадресовываем пользователя на главную страницу
-      }
-      return {}
-    })
-    .catch((err) => {
-      console.log(`Ошибка регистрации: ${err}`);
-      setIsOk(false);
-      setInfoTooltipOpen(true);
-    })
-    // .finally(() => {
-    //   setInfoTooltipOpen(true);
-    // })
   }
 
   const handleSignOut = () => {
     localStorage.removeItem('jwt'); // удаляем токен при выходе из аккаунта
     setLoggedIn(false);
-    setUserEmail(''); // очищаем e-mail
+    // setUserEmail(''); // очищаем e-mail
     navigate('/sign-in', {replace: true});
-  }
-
-  // проверяем есть ли в локальном хранилище jwt
-  useEffect(() => {
-    handleTokenCheck
-  }, [])
-
-  const handleTokenCheck = () => {
-    if (localStorage.getItem('jwt')) {
-      const jwt = localStorage.getItem('jwt');
-      auth.checkToken(jwt)
-      .then((res) => {
-        if(res) {
-          setLoggedIn(true);
-          navigate('/', {replace: true});
-          setUserEmail(res.data.email);
-        }
-      })
-    }
   }
 
   // создаём обработчики для открытия попапов
   const handleEditAvatarClick = () => {
     setEditAvatarPopupOpen(true);
   }
-
   const handleEditProfileClick = () => {
     setEditProfilePopupOpen(true);
   }
-
   const handleAddPlaceClick = () => {
     setAddPlacePopupOpen(true);
   }
-
   const handleCardClick = (card) => {
     setSelectedCard(card);
   }
-
   const handleDeleteCardClick = () => {
     setConfirmationPopupOpen(true);
   }
-
+  
   const handleCardLike = (card) => {
     // снова проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some(i => i._id === currentUser._id);
@@ -253,18 +250,8 @@ function App() {
     <>
   <CurrentUserContext.Provider value={currentUser}>
     <Header userEmail={userEmail} handleSignOut={handleSignOut} />
-    {/* <Main
-      onEditAvatar={handleEditAvatarClick}
-      onEditProfile={handleEditProfileClick}
-      onAddPlace={handleAddPlaceClick}
-      onCardClick={handleCardClick}
-      onCardLike={handleCardLike}
-      onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
-      cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
-      cards={cards}
-    /> */}
     <Routes>
-      <Route path='/' element={<ProtectedRoute 
+      <Route path='/' element={<ProtectedRouteElement 
       element={Main}
       loggedIn={loggedIn}
       onEditAvatar={handleEditAvatarClick}
@@ -274,9 +261,17 @@ function App() {
       onCardLike={handleCardLike}
       onCardDelete={handleDeleteCardClick} // при нажатии на кнопку удаления открываем попап-подтверждение
       cardToBeDeleted={setCardToBeDeleted} // меняем стейт null на карточку (см. компонент Card)
-      cards={cards} />} />
-      <Route path="/sign-up" element={<Register onRegistration={handleRegistration} />} />
-      <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
+      cards={cards} />}
+      />
+      <Route path="/sign-up" element={
+        <Register onRegistration={handleRegistration} />
+      }/>
+      <Route path="/sign-in" element={
+        <Login handleLogin={handleLogin} />
+      }/>
+      {/* <Route path='*' element={
+        !loggedIn ? <Navigate to='/sign-in' /> : <Navigate to='/' />
+      } /> */}
     </Routes>
     <Footer />
     <PopupWithConfirmation
@@ -309,7 +304,7 @@ function App() {
       onAddPlace={handleAddPlaceSubmit}
       textOnButton={isLoading ? "Сохранение..." : "Создать"}
     />
-    <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} isOk={isOk} />
+    <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} isSucceeded={isSucceeded} />
   </CurrentUserContext.Provider> 
 </>
   );
@@ -317,4 +312,4 @@ function App() {
 
 export default App;
 
-// Routes - аналог компонента Switch
+// Routes - аналог компонента Switch в React Router 5

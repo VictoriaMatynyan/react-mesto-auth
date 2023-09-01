@@ -4,29 +4,6 @@ const Login = ({ handleLogin }) => {
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
 
-    const handleChangeEmail = (e) => {
-        setUserEmail(e.target.value);
-    }
-
-    const handleChangePassword = (e) => {
-        setUserPassword(e.target.value);
-    }
-    
-
-    // const [formValue, setFormValue] = useState({
-    //     email: "",
-    //     password: "",
-    // })
-
-    // const handleChange = (e) => {
-    //     const {name, value} = e.target;
-    //     setFormValue({
-    //         // деструктуризацией сохраняем все свойства formValue и добавляем новое свойство name со знчением value
-    //         ...formValue,
-    //         [name]: value
-    //     })     
-    // }
-
     const handleSubmit = (e) => {
         e.preventDefault();
         handleLogin(userEmail, userPassword); // передаём актуальные значения полей формы
@@ -46,7 +23,7 @@ const Login = ({ handleLogin }) => {
                 placeholder="Email"
                 autoComplete="off"
                 value={userEmail}
-                onChange={handleChangeEmail}
+                onChange={({target}) => setUserEmail(target.value)}
             />
             <input
             className="authentication-form__input"
@@ -54,7 +31,7 @@ const Login = ({ handleLogin }) => {
                 name="password"
                 placeholder="Пароль"
                 value={userPassword}
-                onChange={handleChangePassword}
+                onChange={({target}) => setUserPassword(target.value)}
             />
             <button
                 className="authentication-form__button"
@@ -68,10 +45,19 @@ const Login = ({ handleLogin }) => {
 export default Login;
 
 // для себя: в теории в calorie-zen компонент Login был расширен так, возможно, 
-// этот компонент изменю в дальнейшем так же
+// этот компонент так же изменю в дальнейшем 
 {/* <div className="login__signup">
         <p>Ещё не зарегистрированы?</p>
         <Link to="/register" className="signup__link">Зарегистрироваться</Link>
       </div> */}
 
-// добавить на форму noValidate
+// to be improved: добавить на форму noValidate
+
+
+    // const handleChangeEmail = (e) => {
+    //     setUserEmail(e.target.value);
+    // }
+
+    // const handleChangePassword = (e) => {
+    //     setUserPassword(e.target.value);
+    // }

@@ -30,17 +30,6 @@ export const login = (email, password) => {
         body: JSON.stringify({ email, password }),
     })
     .then(validateResponse)
-    // .then(res => res.json())
-    // .then((data) => {
-    //     if(data.jwt) {
-    //         localStorage.setItem('jwt', data.jwt);
-    //         return data;
-    //     }
-    //     return {};
-    // })
-    // .catch((err) => {
-    //     console.log(`Ошибка авторизации: ${err}`);
-    // })
 }
 
 export const checkToken = (token) => {
@@ -53,7 +42,7 @@ export const checkToken = (token) => {
         },
     })
     .then(validateResponse)
-    .catch((err) => {
-        console.log(`Ошибка проверки токена: ${err}`);
-    })
+    // .catch((err) => {
+    //     console.log(`Ошибка проверки токена: ${err}`);
+    // })
 }

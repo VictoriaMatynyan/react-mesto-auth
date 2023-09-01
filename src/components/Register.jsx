@@ -2,50 +2,18 @@ import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 
 const Register = ({ onRegistration }) => {
-    const [email, setUserEmail] = useState('');
-    const [password, setUserPassword] = useState('');
-
-    const handleChangeEmail = (e) => {
-        setUserEmail(e.target.value);
-    }
-
-    const handleChangePassword = (e) => {
-        setUserPassword(e.target.value);
-    }
+    const [userEmail, setUserEmail] = useState('');
+    const [userPassword, setUserPassword] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // const {email, password} = formValue;
-        onRegistration(email, password); // передаём актуальные значения полей формы
+        onRegistration(userEmail, userPassword); // передаём актуальные значения полей формы
     }
-
-    // const [formValue, setFormValue] = useState({
-    //     email: "",
-    //     password: "",
-    // })
-
-    // const handleChange = (e) => {
-    //     const {name, value} = e.target;
-    //     setFormValue({
-    //         // деструктуризацией сохраняем все свойства formValue и добавляем новое свойство name со знчением value
-    //         ...formValue,
-    //         [name]: value
-    //     })
-    // }
-    // const handleChange = (e) => {
-    //     const {name, value} = e.target;
-    //     setFormValue(() => ({...formValue, [name]: value}))
-    // }
-  
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     handleRegistration({email, password}); // передаём актуальные значения полей формы
-    // }
   
     return (
         <form
             className="authentication-form"
-            onSubmit={(e) => handleSubmit(e)}
+            onSubmit={handleSubmit}
             name="registration"
         >
             <h2 className="authentication-form__title">Вход</h2>
@@ -54,8 +22,8 @@ const Register = ({ onRegistration }) => {
                 type="email"
                 name="email"
                 placeholder="Email"
-                value={email}
-                onChange={handleChangeEmail}
+                value={userEmail}
+                onChange={({target}) => setUserEmail(target.value)}
                 autoComplete="off"
             />
             <input
@@ -63,8 +31,8 @@ const Register = ({ onRegistration }) => {
                 type="password"
                 name="password"
                 placeholder="Пароль"
-                value={password}
-                onChange={handleChangePassword}
+                value={userPassword}
+                onChange={({target}) => setUserPassword(target.value)}
             />
             <button
                 className="authentication-form__button"
@@ -79,3 +47,10 @@ const Register = ({ onRegistration }) => {
 }
 
 export default Register;
+
+    // const handleChangeEmail = (e) => {
+    //     setUserEmail(e.target.value);
+    // }
+    // const handleChangePassword = (e) => {
+    //     setUserPassword(e.target.value);
+    // }
