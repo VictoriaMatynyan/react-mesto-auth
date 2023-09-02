@@ -16,7 +16,7 @@ const Register = ({ onRegistration }) => {
             onSubmit={handleSubmit}
             name="registration"
         >
-            <h2 className="authentication-form__title">Вход</h2>
+            <h2 className="authentication-form__title">Регистрация</h2>
             <input
                 className="authentication-form__input"
                 type="email"
@@ -33,6 +33,7 @@ const Register = ({ onRegistration }) => {
                 placeholder="Пароль"
                 value={userPassword}
                 onChange={({target}) => setUserPassword(target.value)}
+                autoComplete="off"
             />
             <button
                 className="authentication-form__button"

@@ -1,14 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const Login = ({ handleLogin }) => {
+const Login = ({ handleLogIn }) => {
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        handleLogin(userEmail, userPassword); // передаём актуальные значения полей формы
+        handleLogIn(userEmail, userPassword); // передаём актуальные значения полей формы
     }
     
+    // сохраняем последние введённые данные
+    useEffect(() => {
+        const previousEmail = localStorage.getItem('userName');
+        const previousPassword = localStorage.getItem('userPassword');
+
+        previousEmail ? setUserEmail(previousEmail) : setUserEmail('');
+        previousPassword ? setUserPassword(previousPassword) : setUserPassword('');
+    }, []);
+
     return (
         <form
             className="authentication-form"
@@ -19,19 +28,22 @@ const Login = ({ handleLogin }) => {
             <input
                 className="authentication-form__input"
                 type="email"
-                name="email"
+                name="userEmail"
                 placeholder="Email"
                 autoComplete="off"
                 value={userEmail}
-                onChange={({target}) => setUserEmail(target.value)}
+                onChange={({target: {value}}) => setUserEmail(value)}
+                required
             />
             <input
             className="authentication-form__input"
                 type="password"
-                name="password"
+                name="userPassword"
                 placeholder="Пароль"
                 value={userPassword}
-                onChange={({target}) => setUserPassword(target.value)}
+                onChange={({target: {value}}) => setUserPassword(value)}
+                autoComplete="off"
+                required
             />
             <button
                 className="authentication-form__button"

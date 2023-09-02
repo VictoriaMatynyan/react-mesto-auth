@@ -42,7 +42,4 @@ export const checkToken = (token) => {
         },
     })
     .then(validateResponse)
-    // .catch((err) => {
-    //     console.log(`Ошибка проверки токена: ${err}`);
-    // })
 }

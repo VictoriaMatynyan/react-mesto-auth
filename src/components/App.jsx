@@ -66,20 +66,18 @@ function App() {
       }
   }, [loggedIn]);
 
+  // сохраняем email   
   useEffect(() => {
-    if(loggedIn) {
-      navigate('/');
-    }
-  }, [loggedIn]);
+    const currentEmail = localStorage.getItem('userName');
+    currentEmail ? setUserEmail(currentEmail) : setUserEmail('');
+  }, [])
 
   // создаём проверку на jwt в локальном хранилище
   const handleTokenCheck = (jwt) => {
     auth.checkToken(jwt)
     .then((res) => {
       if(res) {
-        console.log(res);
         setLoggedIn(true);
-        setUserEmail({userEmail: res.email});
         navigate('/', {replace: true});
       }
     })
@@ -90,7 +88,7 @@ function App() {
     if (jwt) {
       handleTokenCheck(jwt);
     }
-  }, [])
+  }, []);
 
   const handleRegistration = (email, password) => {
     auth.register(email, password)
@@ -99,8 +97,8 @@ function App() {
         setIsSucceeded(false);
         setInfoTooltipOpen(true);
       } else { // здесь мы не проверяем на jwt - его в параметрах запроса нет
-        setInfoTooltipOpen(true);
         setIsSucceeded(true); // если успех - открываем радостный попап
+        setInfoTooltipOpen(true);
         navigate('/', {replace: true}); // и переадресовываем пользователя на главную страницу
       }
     })
@@ -109,27 +107,30 @@ function App() {
     })
   }
 
-  const handleLogin = (email, password) => {
+  const handleLogIn = (email, password) => {
     auth.login(email, password)
     .then((res) => {
-      if (res) { // здесь res.jwt 
-        console.log(res);
-        localStorage.setItem('jwt', res.jwt);
+      if (res.statusCode === 401) throw new Error('Ошибка авторизации');
+      if (res) {
+        localStorage.setItem('jwt', res.token); // сервер возвращает token, поэтому res.jwt = undefined, а res.token = токену
+        localStorage.setItem('userName', email); // сохраняем данные пользователя, чтобы не вводить их повторно
+        localStorage.setItem('userPassword', password);
         setLoggedIn(true);
-        setUserEmail(email);
         navigate('/', {replace: true}); // если успех - переадресовываем пользователя на главную страницу
       }
-    })
+    }) 
     .catch((err) => {
       console.log(`Ошибка авторизации: ${err}`);
+      setInfoTooltipOpen(true);
       setIsSucceeded(false);
     })
   }
+  // P.S. localStorage.jwt = res.token
 
-  const handleSignOut = () => {
+  const handleLogOut = () => {
     localStorage.removeItem('jwt'); // удаляем токен при выходе из аккаунта
     setLoggedIn(false);
-    // setUserEmail(''); // очищаем e-mail
+    setUserEmail(''); // очищаем e-mail
     navigate('/sign-in', {replace: true});
   }
 
@@ -249,7 +250,7 @@ function App() {
   return (
     <>
   <CurrentUserContext.Provider value={currentUser}>
-    <Header userEmail={userEmail} handleSignOut={handleSignOut} />
+    <Header handleLogOut={handleLogOut} />
     <Routes>
       <Route path='/' element={<ProtectedRouteElement 
       element={Main}
@@ -267,11 +268,11 @@ function App() {
         <Register onRegistration={handleRegistration} />
       }/>
       <Route path="/sign-in" element={
-        <Login handleLogin={handleLogin} />
+        <Login handleLogIn={handleLogIn} />
       }/>
-      {/* <Route path='*' element={
+      <Route path='*' element={
         !loggedIn ? <Navigate to='/sign-in' /> : <Navigate to='/' />
-      } /> */}
+      } />
     </Routes>
     <Footer />
     <PopupWithConfirmation
@@ -313,3 +314,10 @@ function App() {
 export default App;
 
 // Routes - аналог компонента Switch в React Router 5
+
+// проверочный костыль
+  // useEffect(() => {
+  //   if(loggedIn) {
+  //     navigate('/');
+  //   }
+  // }, [loggedIn]);

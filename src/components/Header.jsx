@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import logo from '../images/mesto_logo.svg';
 
-const Header = ({ userEmail, handleSignOut }) => {
+const Header = ({ handleLogOut }) => {
+    const [userEmail, setUserEmail] = useState('');
+    
+    useEffect(() => {
+        const currentUserEmail = localStorage.getItem('userName');
+        currentUserEmail ? setUserEmail(currentUserEmail) : setUserEmail('');
+    })
+
     // создаём переменную для отображения нужной шапки
     const location = useLocation();
 
@@ -26,7 +33,7 @@ const Header = ({ userEmail, handleSignOut }) => {
                 (
                     <nav className="header__auth-nav">
                         <p className="header__user-email">{userEmail}</p>
-                        <Link to="sign-out" className="header__link-out" onClick={handleSignOut}>Выйти</Link>
+                        <button className="header__quit-button" onClick={handleLogOut}>Выйти</button>
                     </nav>
                 )
             }
