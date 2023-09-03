@@ -8,3 +8,16 @@
     border: none;
     background-color: #000;
 }
+
+@media screen and (max-width: 500px) {
+    .authentication-form {
+        padding: 40px 0 112px;
+    }
+    
+}
+
+@media screen and (max-width: 419px) {
+    .authentication-form {
+        margin: 0px 30px;
+    }
+}

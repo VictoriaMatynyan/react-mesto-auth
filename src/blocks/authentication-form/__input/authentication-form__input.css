@@ -21,6 +21,12 @@
     color: rgba(204, 204, 204, 1);
 }
 
+@media screen and (max-width: 500px) {
+    .authentication-form__input:first-of-type {
+        padding-top: 40px;
+    }
+}
+
 /* .authentication-form__input:-webkit-autofill {
     background-color: black;
     box-shadow: black;
