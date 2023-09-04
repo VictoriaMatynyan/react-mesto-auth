@@ -103,6 +103,8 @@ function App() {
       }
     })
     .catch((err) => {
+      setIsSucceeded(false);
+      setInfoTooltipOpen(true);
       console.log(`Ошибка регистрации: ${err}`);
     })
   }
