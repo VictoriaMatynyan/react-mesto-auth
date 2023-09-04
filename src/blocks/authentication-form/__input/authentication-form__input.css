@@ -27,8 +27,8 @@
     }
 }
 
-/* .authentication-form__input:-webkit-autofill {
+.authentication-form__input:-webkit-autofill {
     background-color: black;
     box-shadow: black;
     color: #fff;
-}  не работает, помогло отключение автозаполнения */
+}  

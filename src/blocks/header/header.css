@@ -1,9 +1,10 @@
 .header {
     max-width: 880px;
-    padding: 45px 0 41px;
+    padding: 0;
     margin: 0 auto;
     box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     border-bottom: 1px solid rgba(84, 84, 84, 0.7);
 }
@@ -11,11 +12,5 @@
 @media screen and (max-width: 879px) {
     .header {
         max-width: 100%;
-    }
-}
-
-@media screen and (max-width: 320px) {
-    .header {
-        padding: 28px 0 31.6px;
     }
 }

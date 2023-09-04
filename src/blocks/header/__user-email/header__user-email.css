@@ -8,3 +8,9 @@
     color: #fff;
     align-self: center;
 }
+
+@media screen and (max-width: 628px) {
+    .header__user-email {
+        padding-bottom: 18px;
+    }
+}

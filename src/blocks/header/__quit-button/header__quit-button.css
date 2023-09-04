@@ -20,3 +20,9 @@
 .header__quit-button:hover {
     opacity: 0.6;
 }
+
+@media screen and (max-width: 935px) {
+    .header__quit-button {
+        padding-right: 27px;
+    }
+}
