@@ -1,57 +1,24 @@
-import React, { useState, useEffect, useRef, forwardRef } from "react";
+import React from "react";
+import { useForm } from "react-hook-form"
 import PopupWithForm from "./PopupWithForm";
 
 const EditAvatarPopup = ({ isOpen, onClose, onUpdateAvatar, textOnButton }) => {
-    const [avatar, setAvatar] = useState('');
-    const [avatarDirty, setAvatarDirty] = useState(false);
-    const [avatarError, setAvatarError] = useState('');
-    // создаём состояние, которое отвечает за валидность формы в целом
-    const [formValid, setFormValid] = useState(false);
 
-     // валидация формы
-     useEffect(() => {
-        if(avatarError) {
-            setFormValid(false);
-        } else {
-            setFormValid(true);
-        }
-    }, [avatarError]);
+    //создаём настройки для валидации формы через react-hook-form
+    const {
+        register,
+        formState: { errors, isValid },
+        handleSubmit,
+        reset,
+    } = useForm({
+        mode: "onChange"
+    });
 
-    const validateAvatarLink = (e) => {
-        setAvatar(e.target.value);
-        const urlLink = /^(http[s]?:\/\/)(www\.)?[^\s$.?#].[^\s]*$/;
-        if (!urlLink.test(e.target.value)) {
-            setAvatarError('Здесь должна быть ссылка');
-        } else {
-            setAvatarError('');
-        }
+    // создаём хендлер для отправки формы и передаём данные из полей формы
+    const onSubmit = (avatar) => {
+        onUpdateAvatar(avatar); 
+        reset({ avatar: '' });
     }
-
-    const handleChangeAvatar = (e) => {
-        setAvatar(e.target.value);
-        setAvatarDirty(true);
-        validateAvatarLink(e);
-    }
-
-    const avatarRef = useRef();
-
-    function handleSubmit(e) {
-        e.preventDefault();
-        if(!avatarError) {
-            // добавляем значение инпута, полученное с помощью рефа
-            onUpdateAvatar({
-                avatar: avatarRef.current.value
-            });
-        }
-    }
-
-    useEffect(() => {
-        // если попап открыт, очищаем поле инпута
-        if(isOpen) {
-            avatarRef.current.value = '';
-        }
-        setFormValid(false);
-    }, [isOpen]);
 
     return (
         <>
@@ -61,22 +28,24 @@ const EditAvatarPopup = ({ isOpen, onClose, onUpdateAvatar, textOnButton }) => {
         onClose={onClose}
         title={"Обновить аватар"}
         textOnButton={textOnButton}
-        onSubmit={handleSubmit}
-        disabled={!formValid}
+        onSubmit={handleSubmit(onSubmit)}
+        disabled={!isValid}
         >
     <input
-        value={avatar}
-        onChange={handleChangeAvatar}
-        ref={avatarRef}
+        {...register('avatar', { required: true,
+        pattern: {
+            value: /^(http[s]?:\/\/)(www\.)?[^\s$.?#].[^\s]*$/,
+            message: 'Введите URL, пожалуйста :)'}
+        })}
         type={"url"}
-        id={"avatarUpdate-input"}
         placeholder={"Ссылка на картинку"}
         className={"popup__input popup__input_type_update"}
-        name={"link"}
         required
         autoComplete="off" 
     />
-    {<span className="avatarUpdate-input-error popup__input-error">{(avatarDirty && avatarError) && avatarError}</span>}
+    {
+    <span className={`popup__input-span ${errors?.avatar && "popup__input-error"}`}>{errors?.avatar?.message}</span>
+    }
     </PopupWithForm>
         </>
     )
@@ -84,24 +53,5 @@ const EditAvatarPopup = ({ isOpen, onClose, onUpdateAvatar, textOnButton }) => {
 
 export default EditAvatarPopup;
 
-// валидация не работает корректно с этим кодом:
- {/* <ProfileFormInput
-                value={avatar}
-                onChange={handleChangeAvatar}
-                ref={avatarRef}
-                type={"url"}
-                name={"link"}
-                id={"avatarUpdate-input"}
-                placeholder={"Ссылка на картинку"}
-                className={"popup__input popup__input_type_update"}
-            /> */}
-
- // нельзя использовать атрибут ref с функциональными компонентами, поэтому используем forwardRef
-    // const ProfileFormInput = forwardRef((props, ref) => {   
-    //     return (
-    //         <input
-    //         ref={ref}
-    //         {...props}
-    //         />
-    //     );
-    // });
+// UPD: рефакторинг после 1 ревью:
+// - переписала валидацию со useState на useForm (react-hook-form).
