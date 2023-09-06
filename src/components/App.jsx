@@ -246,7 +246,13 @@ function App() {
     return () => {
       document.removeEventListener('keydown', closeWithEsc);
     }
-  }, [closeAllPopups]);  // App размонтируется только когда пользователь закроет вкладку, поэтому
+  }, [
+    isEditAvatarPopupOpen,
+    isEditProfilePopupOpen,
+    isAddPlacePopupOpen,
+    isConfirmationPopupOpen,
+    isInfoTooltipOpen
+  ]);  // App размонтируется только когда пользователь закроет вкладку, поэтому
   // добавляем в массив зависимостей все стейт-переменные относящиеся к модальным окнам
 
  
